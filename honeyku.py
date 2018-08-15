@@ -81,20 +81,10 @@ def catch_all(path):
 
 def load_config():
 	""" Load the configuration from local file or Amazon S3 """
-
-	# Check the environment variable for config type (local/s3)
-	CONFIGFILE = os.environ.get('configFile')
-	# Load config from S3
-	if CONFIGFILE == "s3":
-		BUCKET = os.environ.get('s3Bucket')
-		KEY = os.environ.get('s3Key')
-		#TODO: Add S3 support
-	elif CONFIGFILE == "local":
-		# Load config from the local file
-		with open('config.json') as config_file:
-			conf = json.load(config_file)
-			logger.info("Local config file loaded")
-
+	# Load config from the local file
+	with open('config.json') as config_file:
+		conf = json.load(config_file)
+		logger.info("Local config file loaded")
 	return conf
 
 
