@@ -63,7 +63,7 @@
 			"queue":"2",
 			"queue_name":"queuename, queuename",
 			"routing_key": ,
-		}
+		},
 	},
 	"threat-intel-lookup": {
 		"enabled": "false",
