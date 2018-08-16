@@ -51,6 +51,19 @@
 			"twilio_account_sid": "",
 			"twilio_auth_token": ""
 		}
+		"RrabiitMQ": {
+			"enabled": "false"
+			"host" : "127.0.0.1"
+			"port" : "5673"
+			"username": "urusername"
+			"password": "urpassword"
+			"exchange": "true"
+			"exchange_name": "exchangename"
+			"exchange_type": "fanout"
+			"queue":"2"
+			"queue_name":"queuename, queuename"
+			"routing_key":
+		}
 	},
 	"threat-intel-lookup": {
 		"enabled": "false",
