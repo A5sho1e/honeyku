@@ -58,6 +58,11 @@ def catch_all(path):
 		# Email alert
 		if config['alert']['email']['enabled'] == "true":
 			email_alerter(alertMessage, config)
+		# RMQ alert
+		# only support one exchange now
+		# TODO: support multiple exchagnes, and durable config
+		if config['alert']['RabiitMQ']['enabled'] == "true":
+			rabiitmq_alert(alertMessage, config)
 		# SMS alert
 		#TODO: Complete and test the SMS alert
 		#if config['alert']['sms']['enabled'] == "true":
@@ -326,6 +331,63 @@ def slack_alerter(msg, webhook_url):
 
 	return
 
-
+def rabiitmq_alert(msg, conf):
+	#user info
+	user_name = conf['alert']['RabiitMQ']['username']
+	pwd = conf['alert']['RabiitMQ']['password']
+	#create connect to RabbitMQ
+	usr_np = pika.PlainCredentials(user_name, pwd)
+	usr_host= conf['alert']['RabiitMQ']['host']
+	usr_port= conf['alert']['RabiitMQ']['port']
+	conHandle = pika.BlockingConnection(pika.ConnectionParameters(host = usr_host, port=usr_port, credentials=usr_np))
+	#create a channel
+	chanHandle = conHandle.channel()
+	#declare exchange 
+	exchagne = conf['alert']['RabiitMQ']['exchange']
+	queue_num = conf['alert']['RabiitMQ']['queue']
+	if exchagne == "true":
+		name = conf['alert']['RabiitMQ']['exchange_name']
+		type = conf['alert']['RabiitMQ']['exchange_type']
+		exchange_durable = ['alert']['RabiitMQ']['durable']
+		chanHandle.exchange_declare(durable=True, exchange_type=type, exchange=name)
+	#declare queue
+	queue_list = conf['alert']['RabiitMQ']['queue_name']
+	queue_list = queue_list.split(',')
+	for i in range(queue_num):
+		chanHandle.queue_declare(durable=True, queue=queue_list[i].strip())
+	#bind queue to channel
+	for i in range(queue_num):
+		chanHandle.queue_bind(exchange=name, queue=queue=queue_list[i].strip())
+	#send the message
+	now = ime.strftime('%a, %d %b %Y %H:%M:%S %Z', time.localtime())
+	packet = {
+		"time_stamp":now, 
+		"honeypot_type":"low", 
+		"honeypot_name":"honeyku", 
+		"data":{
+			"event_type":"Network",
+			"event_processid":"",
+			"event_processname":"",
+			"src_ip":msg['source-ip'],
+			"src_port":,
+			"dst_ip":"101.132.139.69",
+			"dst_port":"1502",
+			"protocol_basic":"http",
+			"protocol_application":"http",
+			"operation_type":"payload",
+			"operation_time":now,
+			"event_details":[
+			{
+			"raw":,
+			"payload":payload,
+			"operation_time":now,
+			}
+		],
+		"user_name":"",
+		}
+	}
+	key = conf['alert']['RabiitMQ']['routing_key']
+	chanHandle.basic_publish(exchange=name, routing_key=key, body=packet)
+	
 if __name__ == '__main__':
 	app.run(debug=False, use_reloader=True)
